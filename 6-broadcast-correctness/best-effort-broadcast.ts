@@ -4,6 +4,8 @@
  * - {@link ComplexityType.Communication Złożoność komunikacyjna} wynosi n.
  * - {@link ComplexityType.Time Złożoność czasowa} wynosi 1.
  */
+export class BRB {}
+
 import {
   addListeners,
   deliverBRB,

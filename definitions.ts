@@ -156,7 +156,7 @@ export enum ProcessingModel {
   FailStop,
   /** Model z ukrytymi awariami:
    * - procesy wykonują deterministyczne algorytmy, chyba że zaprzestaną działania w wyniku awarii.
-   * - Nie jest dostępny doskonały detektor awarii.
+   * - Nie ma potrzeby dostępu {@link DetectorType.Perfect doskonały detektor awarii}.
    * - Kanały są {@link ChannelType.PerfectLink niezawodne}.
    * */
   FailSilent,
@@ -324,6 +324,8 @@ export enum ListenerType {
   ReceiveStubborn,
   /** @see ChannelType.PerfectLink */
   ReceivePerfectLink,
+  /** @see BroadcastType.RegularReliable */
+  ReceiveReliableRegularBroadcast,
   /** @see ChannelType.FairLoss */
   DeliverFairLoss,
   /** @see ChannelType.Stubborn */
@@ -354,6 +356,7 @@ export const {
   ReceiveFairLoss,
   ReceiveStubborn,
   ReceivePerfectLink,
+  ReceiveReliableRegularBroadcast,
   DeliverBestEffortBroadcast,
   Start,
   Internal,
