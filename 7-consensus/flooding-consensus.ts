@@ -12,17 +12,15 @@ import { BRB } from "../6-broadcast-correctness/best-effort-broadcast";
 import {
   addListeners,
   Crash, decideRC,
-  deliverURB,
   Frame,
-  Message, ProposeRegular,
+  ProposeRegular,
   ReceiveBestEffortBroadcast,
   sendBRB,
-  SendUniformReliableBroadcast,
   SideEffect,
   uuid, Value,
 } from "../definitions";
 import { monitors, processes } from "../globals";
-import { issubsetof, map, waitfor } from "../utils";
+import { issubsetof, waitfor } from "../utils";
 
 interface Proposal extends Frame {
   value: Value;
@@ -30,11 +28,6 @@ interface Proposal extends Frame {
 }
 interface Decision extends Proposal {}
 
-
-interface Packet extends Frame {
-  origin: Process;
-  message: Message;
-}
 interface Monitor {
   process: Process;
 }
