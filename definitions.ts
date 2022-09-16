@@ -5,7 +5,7 @@ export type Tag = string;
 
 export interface Frame {
   destinationId?: uuid;
-  messageId?: uuid;
+  id?: uuid;
   senderId?: uuid;
   tag?: Tag;
 }
@@ -28,6 +28,8 @@ export const sendPL = <Packet>(from: any, to: any, packet?: Packet) => {};
 export const sendBRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 /** @see BroadcastType.RegularReliable */
 export const sendRRB = <Packet>(from: any, to: any, packet?: Packet) => {};
+/** @see BroadcastType.UniformReliable */
+export const sendURB = <Packet>(from: any, to: any, packet?: Packet) => {};
 
 export const deliver = <Packet>(from: any, to: any, packet?: Packet) => {};
 /** @see ChannelType.FairLoss */
@@ -40,19 +42,41 @@ export const deliverPL = <Packet>(from: any, to: any, packet?: Packet) => {};
 export const deliverBRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 /** @see BroadcastType.RegularReliable */
 export const deliverRRB = <Packet>(from: any, to: any, packet?: Packet) => {};
+/** @see BroadcastType.UniformReliable */
+export const deliverURB = <Packet>(from: any, to: any, packet?: Packet) => {};
 
-export const receive = <Packet, T extends {} | []>(from: any, to: any): T extends [] ? Packet[] : Packet => noop;
+export const receive = <Packet, T extends {} | []>(
+  from: any,
+  to: any,
+): T extends [] ? Packet[] : Packet => noop;
 /** @see ChannelType.FairLoss */
-export const receiveFL = <Packet, T extends {} | []>(from: any, to: any): T extends [] ? Packet[] : Packet => noop;
+export const receiveFL = <Packet, T extends {} | []>(
+  from: any,
+  to: any,
+): T extends [] ? Packet[] : Packet => noop;
 /** @see ChannelType.Stubborn */
-export const receiveSB = <Packet, T extends {} | []>(from: any, to: any): T extends [] ? Packet[] : Packet => noop;
+export const receiveSB = <Packet, T extends {} | []>(
+  from: any,
+  to: any,
+): T extends [] ? Packet[] : Packet => noop;
 /** @see ChannelType.PerfectLink */
-export const receivePL = <Packet, T extends {} | []>(from: any, to: any): T extends [] ? Packet[] : Packet => noop;
+export const receivePL = <Packet, T extends {} | []>(
+  from: any,
+  to: any,
+): T extends [] ? Packet[] : Packet => noop;
+/** @see BroadcastType.UniformReliable */
+export const receiveURB = <Packet, T extends {} | []>(
+  from: any,
+  to: any,
+): T extends [] ? Packet[] : Packet => noop;
 
 export const decide = (decision: boolean) => {};
 
 export const store = <T>(self: T, parameter: keyof T) => {};
-export const retrieve = <T, Key extends keyof T>(self: T, parameter: Key): T[Key] => noop;
+export const retrieve = <T, Key extends keyof T>(
+  self: T,
+  parameter: Key,
+): T[Key] => noop;
 
 export const addListeners = (pairs: [ListenerType, any][]) => {};
 
@@ -188,13 +212,20 @@ export enum BroadcastType {
    * */
   BestEffort,
   /**
-   * Zgodne rozgłaszanie niezawodne - kontrakty:
-   * - Ważność (validity - własność żywotności) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
-   * - Brak powielania (integralność - własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
-   * - Brak samo-generacji (zwartość - własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
-   * - Zgodność (agreement - własność żywotności) — Jeżeli wiadomość zostanie odebrana przez poprawny process, to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
+   * Zgodne rozgłaszanie niezawodne — kontrakty:
+   * - Ważność (validity — własność żywotności) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność — własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość — własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Zgodność (agreement — własność żywotności) — Jeżeli wiadomość zostanie odebrana przez poprawny process, to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
    * */
   RegularReliable,
+  /** Jednolite rozgłaszanie niezawodne — kontrakty:
+   * - Ważność (validity — własność żywotności) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność — własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość — własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Jednolita zgodność (uniform agreement — własność żywotności) — Jeżeli wiadomość zostanie odebrana pewien process (niezależnie od poprawności), to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
+   */
+  UniformReliable,
 }
 
 export enum ChannelType {
@@ -225,7 +256,7 @@ export enum FlushType {
   /** Kanał blokujący wyprzedzanie */
   Backward = "BF",
   /** Kanał bez blokad */
-  Ordinary = "OF"
+  Ordinary = "OF",
 }
 export module FlushType {
   const { Backward, Ordinary, Forward, TwoWay } = FlushType;
@@ -254,13 +285,17 @@ export class ScalarClock {
   constructor(public value: number = 0) {}
 
   tick = () => (++this.value, this);
-  sync = (other: this) => (this.value = Math.max(this.value, other.value) + 1, this);
+  sync = (other: this) => (
+    (this.value = Math.max(this.value, other.value) + 1), this
+  );
 }
 
 export class VectorClock extends Array<number> {
   tickAt = (index: number) => (++this[index], this);
-  sync = (other: VectorClock) =>
-    (this.forEach((tick, index) => this[index] = Math.max(tick, other[index])), this);
+  sync = (other: VectorClock) => (
+    this.forEach((tick, index) => (this[index] = Math.max(tick, other[index]))),
+      this
+  );
 
   isSameAs = (other: VectorClock) =>
     this.every((tick, index) => tick === other[index]);
@@ -273,17 +308,12 @@ export class VectorClock extends Array<number> {
     this.some((tick, index) => tick > other[index]);
   isEarlierThan = (other: VectorClock) =>
     this.isEarlierOrSameAs(other) && this.isNotSameAs(other);
-  isNotEarlierThan = (other: VectorClock) =>
-    !(this.isEarlierThan(other));
+  isNotEarlierThan = (other: VectorClock) => !this.isEarlierThan(other);
 
-  isLaterThan = (other: VectorClock) =>
-    this.isNotEarlierOrSameAs(other);
-  isNotLaterThan = (other: VectorClock) =>
-    !(this.isLaterThan(other));
-  isLaterOrSameAs = (other: VectorClock) =>
-    this.isNotEarlierThan(other);
-  isNotLaterOrSameAs = (other: VectorClock) =>
-    !(this.isLaterOrSameAs(other));
+  isLaterThan = (other: VectorClock) => this.isNotEarlierOrSameAs(other);
+  isNotLaterThan = (other: VectorClock) => !this.isLaterThan(other);
+  isLaterOrSameAs = (other: VectorClock) => this.isNotEarlierThan(other);
+  isNotLaterOrSameAs = (other: VectorClock) => !this.isLaterOrSameAs(other);
 
   isIncomperableWith = (other: VectorClock) =>
     this.isNotEarlierThan(other) && other.isNotEarlierThan(this);
@@ -291,6 +321,7 @@ export class VectorClock extends Array<number> {
 
 export enum ListenerType {
   Recover,
+  SideEffect,
   Crash,
   Clock,
   Start,
@@ -302,6 +333,8 @@ export enum ListenerType {
   SendBestEffortBroadcast,
   /** @see BroadcastType.RegularReliable */
   SendReliableRegularBroadcast,
+  /** @see BroadcastType.UniformReliable */
+  SendUniformReliableBroadcast,
   /** @see ChannelType.FairLoss */
   SendFairLoss,
   /** @see ChannelType.Stubborn */
@@ -324,8 +357,12 @@ export enum ListenerType {
   ReceiveStubborn,
   /** @see ChannelType.PerfectLink */
   ReceivePerfectLink,
+  /** @see BroadcastType.BestEffort */
+  ReceiveBestEffortBroadcast,
   /** @see BroadcastType.RegularReliable */
   ReceiveReliableRegularBroadcast,
+  /** @see BroadcastType.UniformReliable */
+  DeliverUniformReliableBroadcast,
   /** @see ChannelType.FairLoss */
   DeliverFairLoss,
   /** @see ChannelType.Stubborn */
@@ -346,6 +383,7 @@ export const {
   SendStubborn,
   SendPerfectLink,
   SendForward,
+  DeliverUniformReliableBroadcast,
   SendBackward,
   SendOrdinary,
   SendTwoWay,
@@ -354,6 +392,8 @@ export const {
   SendX,
   Receive,
   ReceiveFairLoss,
+  SendUniformReliableBroadcast,
+  SideEffect,
   ReceiveStubborn,
   ReceivePerfectLink,
   ReceiveReliableRegularBroadcast,
@@ -363,4 +403,5 @@ export const {
   Activation,
   Clock,
   Recover,
+  ReceiveBestEffortBroadcast,
 } = ListenerType;

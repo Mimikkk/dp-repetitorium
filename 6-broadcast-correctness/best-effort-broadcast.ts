@@ -1,4 +1,5 @@
-/** Algorytm podstawowego rozgłaszania niezawodnego - założenia:
+/**
+ * Algorytm podstawowego rozgłaszania niezawodnego - założenia:
  * - Dostęp do {@link ChannelType.PerfectLink kanałów niezawodnych}.
  * - Model przetwarzania oparty o {@link ProcessingModel.FailSilent ukryte awarie}.
  * - {@link ComplexityType.Communication Złożoność komunikacyjna} wynosi n.

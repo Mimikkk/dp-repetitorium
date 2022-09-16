@@ -10,3 +10,5 @@ export const map = <T extends object, Y extends Set<T> | Array<T>>(
 export const waitfor = async (predicate: () => boolean) => {};
 
 export const delay = async (ms: number) => {};
+
+export const issubsetof = <T>(self: Set<any>, of: Set<any>): boolean => false;
