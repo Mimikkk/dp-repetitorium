@@ -1,27 +1,30 @@
 /** Algorytm jednolitego rozgłoszenia niezawodnego z potwierdzeniami od wszystkich - założenia:
  * - Dostęp do {@link ChannelType.Stubborn kanałów rzetelnych}.
- * - {@link ComplexityType.Communication Złożoność komunikacyjna} optymistyczna: n^2.
- * - {@link ComplexityType.Communication Złożoność komunikacyjna} pesymistyczna: n^2.
- * - {@link ComplexityType.Time Złożoność czasowa} optymistyczna: wynosi 2 (od siebie i od reszty).
- * - {@link ComplexityType.Time Złożoność czasowa} pesymistyczna: wynosi n + 1.
  */
 import {
   addListeners,
   deliverPRB,
   Frame,
   ListenerType,
-  Message,
-  ReceiveFairLoss, sendFL,
+  Message, Receive,
+  ReceiveFairLoss, sendFL, sendX,
   uuid,
 } from "../definitions";
 import { monitors } from "../globals";
-import { pickmany, omit } from "../utils";
+import { pickmany, omit, random, range } from "../utils";
 
 interface Packet extends Frame {
-  round: number;
+  sequenceNo: number;
   origin: Process;
   message: Message;
 }
+
+interface Request extends Packet {
+  round: number;
+  requestedBy: Process;
+}
+interface Answer extends Packet {}
+
 interface Monitor {
   process: Process;
 }
@@ -31,22 +34,55 @@ interface Process {
   delivered: Set<Message>;
   maxRounds: number;
   fanout: number;
+  storeThreshold: number;
+  sequenceNo: number;
+  sequenceNos: number[];
+  pending: Set<Packet>;
+  stored: Set<Packet>;
+  targets: Set<Process>;
 }
 
 const gossip = (self: Process, packet: Packet) => {
   const targets = pickmany(omit(monitors, self.monitor), self.fanout);
   sendFL(self.monitor, targets, packet);
 };
+const deliverPending = (self: Process, destination: Process) => {
+  const pending = [...self.pending].filter(packet => packet.origin === destination);
+  let sendable: Packet;
+  do {
+    sendable = pending.find(({ sequenceNo }) => sequenceNo === destination.sequenceNo + 1);
+
+    if (sendable) {
+      ++destination.sequenceNos[sendable.origin.id];
+      self.pending.delete(sendable);
+      deliverPRB(sendable.origin, destination, sendable.message);
+    }
+  } while (sendable);
+};
 
 addListeners([
   [ListenerType.SendProbabilisticReliableBroadcast, (sender: Process, destinations: Process[], message: Message) => {
-    gossip(sender, { round: sender.maxRounds, origin: sender, message });
+    sendX(sender.monitor, monitors, { origin: sender, message, sequenceNo: sender.sequenceNo });
   }],
-  [ReceiveFairLoss, (sender: Process, destination: Process, packet: Packet) => {
-    if (destination.delivered.has(packet.message)) {
-      destination.delivered.add(packet.message);
-      deliverPRB(packet.origin, destination, packet.message);
+  [ReceiveFairLoss, (sender: Monitor, destination: Monitor, packet: Request) => {
+
+  }],
+  [ReceiveFairLoss, (sender: Monitor, destination: Monitor, packet: Answer) => {
+
+  }],
+  [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
+    if (random(destination.process.storeThreshold))
+      destination.process.stored.add(packet);
+
+    if (packet.sequenceNo === destination.process.sequenceNo + 1) {
+      ++destination.process.sequenceNo;
+      deliverPRB(destination.process, destination.process, packet.message);
+    } else {
+      destination.process.pending.add(packet);
+      range(destination.process.sequenceNo, packet.sequenceNo + 1).forEach((s) => {
+        // TODO
+        gossip(destination.process, {} as any);
+      });
     }
-    if (packet.round > 0) gossip(destination, { ...packet, round: packet.round - 1 });
   }],
 ]);
