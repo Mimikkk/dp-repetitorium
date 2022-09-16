@@ -12,3 +12,5 @@ export const waitfor = async (predicate: () => boolean) => {};
 export const delay = async (ms: number) => {};
 
 export const issubsetof = <T>(self: Set<any>, of: Set<any>): boolean => false;
+export const pickany = <T>(items: Set<T>): T => ({}) as any;
+export const pickmany = <T>(items: Set<T> | T[], n: number): Set<T> => ({}) as any;

@@ -30,6 +30,8 @@ export const sendBRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 export const sendRRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 /** @see BroadcastType.UniformReliable */
 export const sendURB = <Packet>(from: any, to: any, packet?: Packet) => {};
+/** @see BroadcastType.UniformReliable */
+export const sendPRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 
 export const deliver = <Packet>(from: any, to: any, packet?: Packet) => {};
 /** @see ChannelType.FairLoss */
@@ -44,6 +46,8 @@ export const deliverBRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 export const deliverRRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 /** @see BroadcastType.UniformReliable */
 export const deliverURB = <Packet>(from: any, to: any, packet?: Packet) => {};
+/** @see BroadcastType.ProbabilisticReliable */
+export const deliverPRB = <Packet>(from: any, to: any, packet?: Packet) => {};
 
 export const receive = <Packet, T extends {} | []>(
   from: any,
@@ -66,6 +70,11 @@ export const receivePL = <Packet, T extends {} | []>(
 ): T extends [] ? Packet[] : Packet => noop;
 /** @see BroadcastType.UniformReliable */
 export const receiveURB = <Packet, T extends {} | []>(
+  from: any,
+  to: any,
+): T extends [] ? Packet[] : Packet => noop;
+/** @see BroadcastType.ProbabilisticReliable */
+export const receivePRB = <Packet, T extends {} | []>(
   from: any,
   to: any,
 ): T extends [] ? Packet[] : Packet => noop;
@@ -226,6 +235,12 @@ export enum BroadcastType {
    * - Jednolita zgodność (uniform agreement — własność żywotności) — Jeżeli wiadomość zostanie odebrana pewien process (niezależnie od poprawności), to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
    */
   UniformReliable,
+  /** Probabilistyczne rozgłaszanie niezawodne — kontrakty:
+   * - Ważność (probabilistic validity — własność żywotności) — Jeżeli proces rozsyłający jest poprawny, jest pewna określona szansa, że każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność — własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość — własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   */
+  ProbabilisticReliable,
 }
 
 export enum ChannelType {
@@ -371,6 +386,12 @@ export enum ListenerType {
   DeliverPerfectLink,
   /** @see BroadcastType.BestEffort */
   DeliverBestEffortBroadcast,
+  /** @see BroadcastType.ProbabilisticReliable */
+  DeliverProbabilisticReliableBroadcast,
+  /** @see BroadcastType.ProbabilisticReliable */
+  ReceiveProbabilisticReliableBroadcast,
+  /** @see BroadcastType.ProbabilisticReliable */
+  SendProbabilisticReliableBroadcast,
 }
 
 export const {
@@ -384,6 +405,9 @@ export const {
   SendPerfectLink,
   SendForward,
   DeliverUniformReliableBroadcast,
+  DeliverProbabilisticReliableBroadcast,
+  ReceiveProbabilisticReliableBroadcast,
+  SendProbabilisticReliableBroadcast,
   SendBackward,
   SendOrdinary,
   SendTwoWay,
