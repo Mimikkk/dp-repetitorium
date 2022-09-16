@@ -39,7 +39,7 @@ interface Process {
   round: number;
   proposalNo: number;
   delivered: boolean[];
-  leaderSet: Process[];
+  leaders: Process[];
   broadcast: boolean[];
   suspected: Set<Process>;
 }
@@ -55,13 +55,13 @@ addListeners([
     destination.process.delivered[decision.round] = true;
   }],
   [SideEffect, async (self: Process) => {
-    await waitfor(() => self.leaderSet[self.round].id === self.id && self.proposal && !self.broadcast[self.round]);
+    await waitfor(() => self.leaders[self.round].id === self.id && self.proposal && !self.broadcast[self.round]);
     decideRC(self, self.proposal);
     self.broadcast[self.round] = true;
     sendBRB(self.monitor, monitors, { value: self.proposal, round: self.round });
   }],
   [SideEffect, async (self: Process) => {
-    await waitfor(() => self.suspected.has(self.leaderSet[self.round]) && self.delivered[self.round]);
+    await waitfor(() => self.suspected.has(self.leaders[self.round]) && self.delivered[self.round]);
     ++self.round;
   }],
 ]);
