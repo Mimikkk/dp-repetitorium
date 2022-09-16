@@ -80,12 +80,18 @@ export const receivePRB = <Packet, T extends {} | []>(
 ): T extends [] ? Packet[] : Packet => noop;
 
 export const decide = (decision: boolean) => {};
+/** @see ConsensusType.Regular */
+export const decideRC = (self: any, value: any) => {};
 
 export const store = <T>(self: T, parameter: keyof T) => {};
 export const retrieve = <T, Key extends keyof T>(
   self: T,
   parameter: Key,
 ): T[Key] => noop;
+
+export type Value = any;
+/** @see ConsensusType.Regular */
+export const proposeRC = <T>(self: T, value: any) => {};
 
 export const addListeners = (pairs: [ListenerType, any][]) => {};
 
@@ -243,6 +249,17 @@ export enum BroadcastType {
   ProbabilisticReliable,
 }
 
+export enum ConsensusType {
+  /**
+   * Podstawowy konsensus - kontrakty:
+   * - Ważność (validity - własność żywotności) — Jeżeli proces decyduje się na wartość, to została zaproponowana przez pewien proces.
+   * - Zakończenie (termination - własność bezpieczeństwa) — Każdy proces ostatecznie decyduje się na jakąś wartość.
+   * - Brak powielania (integralność - własność bezpieczeństwa) — Decyzja jest dostarczona tylko jeden raz.
+   * - Zgodność (agreement - własność bezpieczeństwa) — Żadne dwa procesy nie decydują się na różne wartości.
+   * */
+  Regular,
+}
+
 export enum ChannelType {
   /** Kanał rzetelny - kontrakty:
    * - Rzetelne Dostarczanie (własność żywotności) — Wiadomość wysłana nieskończoność razy będzie dostarczona nieskończoną liczbę razy, jeżeli oba procesy są poprawne.
@@ -392,9 +409,14 @@ export enum ListenerType {
   ReceiveProbabilisticReliableBroadcast,
   /** @see BroadcastType.ProbabilisticReliable */
   SendProbabilisticReliableBroadcast,
+  /** @see ConsensusType.Regular */
+  ProposeRegular,
+  /** @see ConsensusType.Regular */
+  DecideRegular,
 }
 
 export const {
+  DecideRegular,
   Send,
   Crash,
   DeliverFairLoss,
@@ -408,6 +430,7 @@ export const {
   DeliverProbabilisticReliableBroadcast,
   ReceiveProbabilisticReliableBroadcast,
   SendProbabilisticReliableBroadcast,
+  ProposeRegular,
   SendBackward,
   SendOrdinary,
   SendTwoWay,

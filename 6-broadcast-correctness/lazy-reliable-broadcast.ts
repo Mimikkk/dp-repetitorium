@@ -49,10 +49,10 @@ addListeners([
     if (sender.process.correct.has(destination.process)) return;
     sendRRB(sender.process, monitors, packet);
   }],
-  [Crash, (detector: Monitor, self: Process) => {
-    detector.process.correct.delete(self);
-    for (const packet of self.from[detector.process.id]) {
-      sendBRB(detector.process, monitors, packet);
+  [Crash, (self: Monitor, dead: Process) => {
+    self.process.correct.delete(dead);
+    for (const packet of dead.from[self.process.id]) {
+      sendBRB(self.process, monitors, packet);
     }
   }],
 ]);

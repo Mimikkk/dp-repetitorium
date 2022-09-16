@@ -54,7 +54,7 @@ addListeners([
     destination.process.pending.add(packet);
     sendBRB(destination.process.monitor, monitors, packet);
   }],
-  [Crash, (self: Process) => self.correct.delete(self)],
+  [Crash, (self: Process, dead: Process) => self.correct.delete(dead)],
   // Oczekiwanie na pakiet, który został dostarczony w wyniku retransmisji przez wszystkie poprawne procesy.
   [SideEffect, async <StatePredicate>(self: Process) => {
     let packets: Packet[] = [];
