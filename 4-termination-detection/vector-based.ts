@@ -1,12 +1,4 @@
-import {
-  addListeners,
-  decide,
-  deliver,
-  Frame,
-  Message, Receive, Send,
-  send, Start,
-  uuid,
-} from "../definitions";
+import { addListeners, decide, deliver, Frame, Message, Receive, Send, send, Start, uuid } from "../definitions";
 import { processes } from "../globals";
 
 interface Packet extends Frame {

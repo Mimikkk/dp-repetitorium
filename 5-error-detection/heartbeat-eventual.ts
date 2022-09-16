@@ -1,13 +1,4 @@
-import {
-  addListeners,
-  Clock,
-  deliverPL,
-  DeliverStubborn,
-  Frame,
-  Message, Receive, ReceivePerfectLink,
-  SendPerfectLink, sendPL,
-  sendSB,
-} from "../definitions";
+import { addListeners, Clock, Frame, ReceivePerfectLink, sendPL } from "../definitions";
 import { monitors, processes } from "../globals";
 
 // Założenia:
@@ -16,10 +7,6 @@ import { monitors, processes } from "../globals";
 // - Czasy przetwarzania lokalnego i przesunięcia zegarów są pomijalne.
 
 interface HeartBeat extends Frame {}
-interface Packet extends Frame {
-  origin: Process;
-  message: Message;
-}
 interface Process {
   id: number;
   monitor: Monitor;

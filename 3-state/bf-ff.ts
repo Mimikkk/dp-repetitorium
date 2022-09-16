@@ -2,7 +2,6 @@ import {
   deliver,
   Frame,
   Message,
-  send,
   uuid,
   sendB,
   sendF,
