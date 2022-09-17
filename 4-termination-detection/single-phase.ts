@@ -1,3 +1,6 @@
+/** Algorytm jednofazowy detekcji zakończenia — założenia:
+ * - Monitory połączone w logiczny pierścień.
+ * */
 import { addListeners, decide, deliver, Frame, Message, Receive, Send, send, Start, uuid } from "../definitions";
 
 interface Packet extends Frame {
@@ -29,10 +32,10 @@ const initializeDetection = <TerminationDetection>(initializer: Monitor) => {
   ++initializer.process.detectionNo;
 
   send(initializer, initializer.successor, {
-    initializer,
     detectionNo: initializer.process.detectionNo,
-    isInvalid: false,
     balance: initializer.process.balance,
+    isInvalid: false,
+    initializer,
   });
 };
 addListeners([
@@ -47,8 +50,8 @@ addListeners([
   [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
     --destination.process.balance;
     destination.process.maxDetectionNo = Math.max(
-      packet.detectionNo,
       destination.process.maxDetectionNo,
+      packet.detectionNo,
     );
     deliver(sender.process, destination.process, packet.message);
   }],
@@ -58,8 +61,8 @@ addListeners([
     token: Token,
   ) => {
     destination.process.detectionNo = Math.max(
-      token.detectionNo,
       destination.process.detectionNo,
+      token.detectionNo,
     );
 
     if (token.initializer.process.id === destination.process.id) {

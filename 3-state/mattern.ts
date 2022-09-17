@@ -1,3 +1,6 @@
+/** Algorytm wektorowy detekcji stanu globalnego — założenia:
+ * - Monitory połączone w logiczny pierścień.
+ * */
 import {
   deliver,
   Frame,

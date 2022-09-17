@@ -1,3 +1,6 @@
+/** Algorytm wektorowy detekcji zakończenia — założenia:
+ * - Monitory połączone w logiczny pierścień.
+ * */
 import { addListeners, decide, deliver, Frame, Message, Receive, Send, send, Start, uuid } from "../definitions";
 import { processes } from "../globals";
 
@@ -72,4 +75,3 @@ addListeners([
     }
   }],
 ]);
-

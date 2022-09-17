@@ -42,6 +42,6 @@ addListeners([
     if (destination.delivered.has(packet.message)) return;
     destination.delivered.add(packet.message);
     deliverRRB(packet.origin, destination, packet.message);
-    deliverBRB(sender, destination, sender);
+    sendBRB(sender, destination, sender);
   }],
 ]);
