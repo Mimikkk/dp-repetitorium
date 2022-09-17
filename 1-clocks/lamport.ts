@@ -14,8 +14,9 @@ interface Monitor {
 
 addListeners([
   [Internal, (self: Process) => self.clock.tick()],
-  [Send, (sender: Process, destination: Process, message: Message) =>
-    send(sender.monitor, destination.monitor, { clock: sender.clock.tick(), message }),
+  [Send, (sender: Process, destination: Process, message: Message) => {
+    send(sender.monitor, destination.monitor, { clock: sender.clock.tick(), message });
+  },
   ],
   [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
     destination.process.clock.sync(packet.clock);
