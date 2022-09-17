@@ -191,7 +191,7 @@ export enum ProcessingModel {
    * - Rozwiązywanie problemów w tym modelu jest stosunkowo łatwe.
    * - Kanały są {@link ChannelType.PerfectLink niezawodne}.
    * - Dostępny {@link DetectorType.Perfect doskonały detektor awarii}.
-   *Dokładność*/
+   **/
   FailStop,
   /** Model z ukrytymi awariami:
    * - procesy wykonują deterministyczne algorytmy, chyba że zaprzestaną działania w wyniku awarii.

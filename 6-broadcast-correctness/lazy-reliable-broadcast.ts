@@ -13,7 +13,7 @@ import {
   DeliverBestEffortBroadcast,
   deliverRRB,
   Frame,
-  Message,
+  Message, ReceiveBestEffortBroadcast,
   sendBRB,
   SendReliableRegularBroadcast,
   sendRRB,
@@ -40,14 +40,15 @@ addListeners([
   [SendReliableRegularBroadcast, (sender: Process, destinations: Process[], message: Message) => {
     sendBRB(sender.monitor, monitors, { origin: sender, message });
   }],
-  [DeliverBestEffortBroadcast, (sender: Monitor, destination: Monitor, packet: Packet) => {
-    if (destination.process.delivered.has(packet.message)) return;
-    destination.process.delivered.add(packet.message);
-    destination.process.from[sender.process.id].add(packet);
-    deliverRRB(sender.process, destination.process, packet.message);
+  [ReceiveBestEffortBroadcast, (sender: Monitor, destination: Monitor, packet: Packet) => {
+    if (!destination.process.delivered.has(packet.message)) {
+      destination.process.delivered.add(packet.message);
+      destination.process.from[sender.process.id].add(packet);
+      deliverRRB(sender.process, destination.process, packet.message);
 
-    if (sender.process.correct.has(destination.process)) return;
-    sendRRB(sender.process, monitors, packet);
+      if (sender.process.correct.has(destination.process)) return;
+      sendBRB(sender.process, monitors, packet);
+    }
   }],
   [Crash, (self: Monitor, dead: Process) => {
     self.process.correct.delete(dead);
