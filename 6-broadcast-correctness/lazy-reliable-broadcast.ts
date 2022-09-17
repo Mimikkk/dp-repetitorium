@@ -46,7 +46,7 @@ addListeners([
       destination.process.from[sender.process.id].add(packet);
       deliverRRB(sender.process, destination.process, packet.message);
 
-      if (sender.process.correct.has(destination.process)) return;
+      if (destination.process.correct.has(sender.process)) return;
       sendBRB(sender.process, monitors, packet);
     }
   }],
