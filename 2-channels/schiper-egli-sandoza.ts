@@ -44,7 +44,6 @@ addListeners([
       sender.process.delayed.add(packet);
       return;
     }
-
     for (const [id, clock] of Object.entries(omit(packet.memory, destination.process.id))) {
       destination.process.memory[id]?.sync(clock);
       destination.process.memory[id] = clock;
