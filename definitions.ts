@@ -119,6 +119,22 @@ export enum SystemType {
   Hybrid,
 }
 
+export enum SystemProperty {
+  /** Właściwość bezpieczeństwa ( safety/consistency ):
+   * - Nie dopuszcza do niepożądanego stanu.
+   * - Zawsze proces jest utrzymany w stanie pożądanym.
+   * - Ewentualnie nie dzieje się nic złego.
+   * np.: Nigdy 2 procesy nie będą w sekcji krytycznej.
+   * */
+  Safety,
+  /** Właściwość żywotności - postępu ( liveness/progress ):
+   * - Pozwala na ostateczne osiągnięcie stanu pożądanego.
+   * - Ewentualnie dzieje się coś dobrego.
+   * np.: procesy ostatecznie dotrą do swoich sekcji krytycznych.
+   * */
+  Liveness,
+}
+
 export enum DetectorTrait {
   /** Zdolność do podejrzewania wszystkich procesów niepoprawnych. */
   Completeness,
@@ -132,9 +148,9 @@ export enum DetectorTrait {
   StrongAccuracy,
   /** {@link DetectorTrait.Accuracy Dokładność} - Czasem proces jest podejrzewany, mimo poprawności. */
   WeakAccuracy,
-  /** {@link DetectorTrait.Accuracy Dokładność} - Po pewnym czasie wszystkie podejrzewane procesy poprawne, przestaną być podejrzewane przez wszystkie procesy poprawne. Zapewnia własność żywotności. */
+  /** {@link DetectorTrait.Accuracy Dokładność} - Po pewnym czasie wszystkie podejrzewane procesy poprawne, przestaną być podejrzewane przez wszystkie procesy poprawne. Zapewnia własność {@link SystemProperty.Liveness żywotności}. */
   EventualStrongAccuracy,
-  /** {@link DetectorTrait.Accuracy Dokładność} - Po pewnym czasie niektóre podejrzewane procesy poprawne, przestaną być podejrzewane przez niektóre procesy poprawne. Zapewnia własność żywotności. */
+  /** {@link DetectorTrait.Accuracy Dokładność} - Po pewnym czasie niektóre podejrzewane procesy poprawne, przestaną być podejrzewane przez niektóre procesy poprawne. Zapewnia własność {@link SystemProperty.Liveness żywotności}. */
   EventualWeakAccuracy,
 }
 
@@ -221,30 +237,30 @@ export enum ProcessingModel {
 export enum BroadcastType {
   /**
    * Podstawowe rozgłaszanie niezawodne - kontrakty:
-   * - Ważność (best-effort validity - własność żywotności) — Jeżeli proces rozsyłający i odbierający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
-   * - Brak powielania (integralność - własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
-   * - Brak samo-generacji (zwartość - własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Ważność (best-effort validity - własność {@link SystemProperty.Liveness żywotności}) — Jeżeli proces rozsyłający i odbierający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność - własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość - własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
    * */
   BestEffort,
   /**
    * Zgodne rozgłaszanie niezawodne — kontrakty:
-   * - Ważność (validity — własność żywotności) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
-   * - Brak powielania (integralność — własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
-   * - Brak samo-generacji (zwartość — własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
-   * - Zgodność (agreement — własność żywotności) — Jeżeli wiadomość zostanie odebrana przez poprawny process, to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
+   * - Ważność (validity — własność {@link SystemProperty.Liveness żywotności}) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność — własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość — własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Zgodność (agreement — własność {@link SystemProperty.Liveness żywotności}) — Jeżeli wiadomość zostanie odebrana przez poprawny process, to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
    * */
   RegularReliable,
   /** Jednolite rozgłaszanie niezawodne — kontrakty:
-   * - Ważność (validity — własność żywotności) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
-   * - Brak powielania (integralność — własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
-   * - Brak samo-generacji (zwartość — własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
-   * - Jednolita zgodność (uniform agreement — własność żywotności) — Jeżeli wiadomość zostanie odebrana pewien process (niezależnie od poprawności), to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
+   * - Ważność (validity — własność {@link SystemProperty.Liveness żywotności}) — Jeżeli proces rozsyłający jest poprawny, to każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność — własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość — własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Jednolita zgodność (uniform agreement — własność {@link SystemProperty.Liveness żywotności}) — Jeżeli wiadomość zostanie odebrana pewien process (niezależnie od poprawności), to ostatecznie wszystkie procesy poprawne odbiorą tę wiadomość.
    */
   UniformReliable,
   /** Probabilistyczne rozgłaszanie niezawodne — kontrakty:
-   * - Ważność (probabilistic validity — własność żywotności) — Jeżeli proces rozsyłający jest poprawny, jest pewna określona szansa, że każda wiadomość jest ostatecznie dostarczona.
-   * - Brak powielania (integralność — własność bezpieczeństwa) — Wiadomość jest dostarczona tylko jeden raz.
-   * - Brak samo-generacji (zwartość — własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Ważność (probabilistic validity — własność {@link SystemProperty.Liveness żywotności}) — Jeżeli proces rozsyłający jest poprawny, jest pewna określona szansa, że każda wiadomość jest ostatecznie dostarczona.
+   * - Brak powielania (integralność — własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomość jest dostarczona tylko jeden raz.
+   * - Brak samo-generacji (zwartość — własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
    */
   ProbabilisticReliable,
 }
@@ -252,30 +268,30 @@ export enum BroadcastType {
 export enum ConsensusType {
   /**
    * Podstawowy konsensus - kontrakty:
-   * - Ważność (validity - własność żywotności) — Jeżeli proces decyduje się na wartość, to została zaproponowana przez pewien proces.
-   * - Zakończenie (termination - własność bezpieczeństwa) — Każdy proces ostatecznie decyduje się na jakąś wartość.
-   * - Brak powielania (integralność - własność bezpieczeństwa) — Decyzja jest dostarczona tylko jeden raz.
-   * - Zgodność (agreement - własność bezpieczeństwa) — Żadne dwa procesy nie decydują się na różne wartości.
+   * - Ważność (validity - własność {@link SystemProperty.Liveness żywotności}) — Jeżeli proces decyduje się na wartość, to została zaproponowana przez pewien proces.
+   * - Zakończenie (termination - własność {@link SystemProperty.Safety bezpieczeństwa}) — Każdy proces ostatecznie decyduje się na jakąś wartość.
+   * - Brak powielania (integralność - własność {@link SystemProperty.Safety bezpieczeństwa}) — Decyzja jest dostarczona tylko jeden raz.
+   * - Zgodność (agreement - własność {@link SystemProperty.Safety bezpieczeństwa}) — Żadne dwa procesy nie decydują się na różne wartości.
    * */
   Regular,
 }
 
 export enum ChannelType {
   /** Kanał rzetelny - kontrakty:
-   * - Rzetelne Dostarczanie (własność żywotności) — Wiadomość wysłana nieskończoność razy będzie dostarczona nieskończoną liczbę razy, jeżeli oba procesy są poprawne.
-   * - Ograniczone Dostarczanie (własność bezpieczeństwa) — Skończona ilość wiadomości jest dostarczona skończoną ilość razy.
-   * - Brak samo-generacji (własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Rzetelne Dostarczanie (własność {@link SystemProperty.Liveness żywotności}) — Wiadomość wysłana nieskończoność razy będzie dostarczona nieskończoną liczbę razy, jeżeli oba procesy są poprawne.
+   * - Ograniczone Dostarczanie (własność {@link SystemProperty.Safety bezpieczeństwa}) — Skończona ilość wiadomości jest dostarczona skończoną ilość razy.
+   * - Brak samo-generacji (własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
    * */
   FairLoss,
   /** Kanał wytrwały - kontrakty:
-   * - Wytrwałe Dostarczanie (własność żywotności) — Wiadomość raz wysłana będzie dostarczona nieskończoną liczbę razy, jeżeli oba procesy są poprawne.
-   * - Brak samo-generacji (własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Wytrwałe Dostarczanie (własność {@link SystemProperty.Liveness żywotności}) — Wiadomość raz wysłana będzie dostarczona nieskończoną liczbę razy, jeżeli oba procesy są poprawne.
+   * - Brak samo-generacji (własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
    * */
   Stubborn,
   /** Kanał niezawodny - kontrakty:
-   * - Niezawodne Dostarczanie (własność żywotności) — Wiadomość raz wysłana będzie ostatecznie dostarczona, jeżeli oba procesy są poprawne.
-   * - Brak powielania (własność bezpieczeństwa) — Wiadomość jest dostarczana tylko raz.
-   * - Brak samo-generacji (własność bezpieczeństwa) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
+   * - Niezawodne Dostarczanie (własność {@link SystemProperty.Liveness żywotności}) — Wiadomość raz wysłana będzie ostatecznie dostarczona, jeżeli oba procesy są poprawne.
+   * - Brak powielania (własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomość jest dostarczana tylko raz.
+   * - Brak samo-generacji (własność {@link SystemProperty.Safety bezpieczeństwa}) — Wiadomości są tylko wysyłane przez procesy; nie tworzą się samorzutnie.
    * */
   PerfectLink,
 }
