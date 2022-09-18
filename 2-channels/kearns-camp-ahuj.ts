@@ -9,15 +9,15 @@ import {
   SendBackward,
   SendForward,
   SendOrdinary,
-  SendTwoWay,
+  SendTwoWay, uuid,
 } from "../definitions";
 import { range } from "../utils";
 
 // Algorytm implementujący sieć monitorów, które dbają o dostarczenie wiadomości
 // w kolejności określanej przez oczekiwany typ kanału dla wiadomości.
 
-//@ts-expect-error - its a mock
-class Packet extends Frame {
+class Packet implements Frame {
+  id?: uuid;
   type: FlushType;
   sequenceNo: number;
   expectedNo: number;
@@ -40,7 +40,7 @@ class Packet extends Frame {
 
 interface Process {
   id: number;
-  awaiting: Set<Packet>[];
+  delayed: Set<Packet>[];
   sequenceNos: number[];
   expectedNos: number[];
   deliveredNos: Set<number>[];
@@ -86,18 +86,18 @@ addListeners([
   }],
   [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
     const delivered = destination.process.deliveredNos[sender.process.id];
-    const awaiting = destination.process.awaiting[sender.process.id];
-    awaiting.add(packet);
+    const delayed = destination.process.delayed[sender.process.id];
+    delayed.add(packet);
 
     while (true) {
-      const packet = [...awaiting[sender.process.id]].find((packet) =>
+      const packet = [...delayed].find((packet) =>
         packet.isDeliverable(sender.process, destination.process),
       );
 
       if (!packet) return;
       deliver(sender.process, destination.process, packet.message);
       delivered.add(packet.sequenceNo);
-      awaiting.delete(packet);
+      delayed.delete(packet);
     }
   }],
 ]);

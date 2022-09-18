@@ -24,7 +24,7 @@ addListeners([
   }],
   [Receive, async (sender: Monitor, destination: Monitor, { message, clock }: Packet) => {
     await waitfor(() =>
-      destination.process[sender.process.id] === clock[sender.process.id] - 1 &&
+      destination.process.clock[sender.process.id] === clock[sender.process.id] - 1 &&
       omit(processes, sender).every(({ clock }) => destination.process.clock.isLaterOrSameAs(clock)),
     );
 

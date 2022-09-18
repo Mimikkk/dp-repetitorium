@@ -281,13 +281,17 @@ export enum ChannelType {
 }
 
 export enum FlushType {
-  /** Kanał niewyprzedzający oraz blokujący wyprzedzanie */
+  /** Kanał niewyprzedzający oraz blokujący wyprzedzanie
+   * Inaczej FIFO
+   * */
   TwoWay = "TF",
   /** Kanał niewyprzedzający */
   Forward = "FF",
   /** Kanał blokujący wyprzedzanie */
   Backward = "BF",
-  /** Kanał bez blokad */
+  /** Kanał bez blokad
+   *  Inaczej nonFIFO
+   * */
   Ordinary = "OF",
 }
 export module FlushType {

@@ -13,10 +13,10 @@ class Packet implements Frame {
 
 interface Process {
   id: number;
+  monitor: Monitor;
   sequenceNos: number[];
   deliveredNos: number[];
   delayed: Set<Packet>;
-  monitor: Monitor;
 }
 interface Monitor {
   process: Process;
@@ -24,7 +24,10 @@ interface Monitor {
 
 addListeners([
   [Send, (sender: Process, destination: Process, message: Message) =>
-    send(sender.monitor, destination.monitor, { sequenceNo: ++sender.sequenceNos[destination.id], message })
+    send(sender.monitor, destination.monitor, {
+      sequenceNo: ++sender.sequenceNos[destination.id],
+      message,
+    }),
   ],
   [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
     if (!packet.isDeliverable(sender, destination)) {
@@ -32,9 +35,10 @@ addListeners([
       return;
     }
 
+    ++destination.process.deliveredNos[sender.process.id];
     deliver(sender.process, destination.process, packet);
-    let delivered;
-    do {
+    let delivered = true;
+    while (delivered) {
       delivered = false;
 
       for (const packet of destination.process.delayed) {
@@ -45,6 +49,6 @@ addListeners([
           delivered = true;
         }
       }
-    } while (delivered);
+    }
   }],
 ]);
