@@ -15,11 +15,13 @@ interface Monitor {
 addListeners([
   [Internal, (self: Process) => self.clock.tick()],
   [Send, (sender: Process, destination: Process, message: Message) => {
-    send(sender.monitor, destination.monitor, { clock: sender.clock.tick(), message });
+    sender.clock.tick();
+    send(sender.monitor, destination.monitor, { clock: sender.clock, message });
   },
   ],
   [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
     destination.process.clock.sync(packet.clock);
+    destination.process.clock.tick();
     deliver(sender.process, destination.process, packet);
   }],
 ]);

@@ -20,8 +20,8 @@ addListeners([
     send(sender.monitor, destination.monitor, { clock: sender.clock, message });
   }],
   [Receive, (sender: Monitor, destination: Monitor, packet: Packet) => {
-    destination.process.clock.tickAt(destination.process.id);
     destination.process.clock.sync(packet.clock);
+    destination.process.clock.tickAt(destination.process.id);
     deliver(sender.process, destination.process, packet.message);
   }],
 ]);

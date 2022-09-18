@@ -317,9 +317,8 @@ export class ScalarClock {
   constructor(public value: number = 0) {}
 
   tick = () => (++this.value, this);
-  sync = (other: this) => (
-    (this.value = Math.max(this.value, other.value) + 1), this
-  );
+  sync = (other: this) =>
+    (this.value = Math.max(this.value, other.value), this);
 }
 
 export class VectorClock extends Array<number> {

@@ -38,9 +38,9 @@ addListeners([
     sender.delivered.add(message);
     sendBRB(sender.monitor, monitors, { origin: sender, message });
   }],
-  [ReceiveReliableRegularBroadcast, (sender: Process, destination: Process, packet: Packet) => {
-    if (destination.delivered.has(packet.message)) return;
-    destination.delivered.add(packet.message);
+  [ReceiveReliableRegularBroadcast, (sender: Monitor, destination: Monitor, packet: Packet) => {
+    if (destination.process.delivered.has(packet.message)) return;
+    destination.process.delivered.add(packet.message);
     deliverRRB(packet.origin, destination, packet.message);
     sendBRB(sender, destination, sender);
   }],
