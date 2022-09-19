@@ -72,7 +72,7 @@ addListeners([
     send(sender.monitor, destination.monitor, message),
   ],
   [Receive, <Marker>(sender: Monitor, destination: Monitor) => {
-    if (destination.process.isInvolved)
+    if (!destination.process.isInvolved)
       State.record(destination.process);
     destination.process.receivedMarker[sender.process.id] = true;
 
