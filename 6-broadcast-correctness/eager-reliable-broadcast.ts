@@ -42,6 +42,6 @@ addListeners([
     if (destination.process.delivered.has(packet.message)) return;
     destination.process.delivered.add(packet.message);
     deliverRRB(packet.origin, destination, packet.message);
-    sendBRB(sender, destination, sender);
+    sendBRB(sender, monitors, sender);
   }],
 ]);
